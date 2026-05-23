@@ -244,7 +244,7 @@ const FlightSummaryCard = ({ searchData }) => {
           </div>
           <div className="flex items-start text-[12px]">
             <span className="text-slate-400 font-medium w-[110px]">Hạng chỗ:</span>
-            <span className="font-semibold text-slate-800">Economy Classic</span>
+            <span className="font-semibold text-slate-800">{flight.fareClass || 'Economy Classic'}</span>
           </div>
         </div>
       </div>

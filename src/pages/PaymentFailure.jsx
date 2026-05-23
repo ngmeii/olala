@@ -137,7 +137,8 @@ const getPaymentSegments = (searchData) => {
     toCity: arrivalLocation.city,
     departureTime: dep.departureTime || '08:30',
     arrivalTime: dep.arrivalTime || '10:20',
-    duration: dep.duration || '1h 50m'
+    duration: dep.duration || '1h 50m',
+    fareClass: dep.fareClass || 'Economy'
   }]
 
   if (ret || searchData.returnDate) {
@@ -151,7 +152,8 @@ const getPaymentSegments = (searchData) => {
       toCity: departureLocation.city,
       departureTime: ret?.departureTime || '18:45',
       arrivalTime: ret?.arrivalTime || '20:35',
-      duration: ret?.duration || dep.duration || '1h 50m'
+      duration: ret?.duration || dep.duration || '1h 50m',
+      fareClass: ret?.fareClass || dep.fareClass || 'Economy'
     })
   }
 
@@ -235,6 +237,7 @@ function PaymentFailure() {
                   <PlaneIcon />
                   <span>{segment.arrivalTime}</span>
                   <small>{formatDuration(segment.duration)}</small>
+                  <small>Hạng vé: {segment.fareClass}</small>
                 </div>
                 <div className="failure-airport"><strong>{segment.toCode}</strong><span>{segment.toCity}</span></div>
               </div>

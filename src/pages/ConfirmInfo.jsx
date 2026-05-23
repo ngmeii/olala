@@ -210,7 +210,7 @@ const FlightBlock = ({ segment }) => {
         <div><span>Hãng bay</span><strong>{flight.airline || 'Vietnam Airlines'}</strong></div>
         <div><span>Chuyến bay</span><strong>{flight.flightNumber || 'VN1201'}</strong></div>
         <div><span>Giờ bay</span><strong>{flight.departureTime || '08:30'} - {flight.arrivalTime || '10:20'}</strong></div>
-        <div><span>Hạng chỗ</span><strong>Phổ thông</strong></div>
+        <div><span>Hạng chỗ</span><strong>{flight.fareClass || 'Phổ thông'}</strong></div>
       </div>
     </section>
   )

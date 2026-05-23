@@ -116,6 +116,7 @@ const tickets = [
     time: '23:05 - 01:15',
     duration: '2h 10m',
     date: 'T5, 14/05/2026',
+    fareClass: 'Eco',
     passengers: '1 Hành khách',
     baggage: '0 Túi ký gửi'
   },
@@ -130,6 +131,7 @@ const tickets = [
     time: '10:20 - 11:35',
     duration: '1h 15m',
     date: 'T6, 15/05/2026',
+    fareClass: 'Economy',
     passengers: '1 Hành khách',
     seat: '12A',
     baggage: '0 Túi ký gửi',
@@ -146,6 +148,7 @@ const tickets = [
     time: '21:30 - 23:40',
     duration: '2h 10m',
     date: 'T3, 05/05/2026',
+    fareClass: 'Economy Classic',
     passengers: '1 Hành khách',
     seat: '12A',
     baggage: '0 Túi ký gửi'
@@ -161,6 +164,7 @@ const tickets = [
     time: '14:50 - 15:50',
     duration: '1h 00m',
     date: 'CN, 03/05/2026',
+    fareClass: 'Eco',
     passengers: '1 Hành khách',
     baggage: '0 Túi ký gửi',
     note: 'Chuyến bay đã được hủy theo yêu cầu của bạn.'
@@ -176,6 +180,7 @@ const tickets = [
     time: '23:05 - 01:15',
     duration: '2h 10m',
     date: 'T5, 14/05/2026',
+    fareClass: 'Eco',
     passengers: '1 Hành khách',
     baggage: '0 Túi ký gửi',
     note: 'Đặt chỗ đã bị hủy do quá hạn thanh toán.'
@@ -210,6 +215,12 @@ const getPassengerLabel = (ticket) => {
 
   const count = (data.adults || 0) + (data.children || 0) + (data.babies || 0)
   return `${count || 1} Hành khách`
+}
+
+const getFareClassLabel = (ticket) => {
+  const depFare = ticket.rawSearchData?.selectedDep?.fareClass
+  const retFare = ticket.rawSearchData?.selectedRet?.fareClass
+  return ticket.fareClass || [depFare, retFare && retFare !== depFare ? retFare : null].filter(Boolean).join(' / ') || 'Economy'
 }
 
 function TicketCard({ ticket, paymentCountdown }) {

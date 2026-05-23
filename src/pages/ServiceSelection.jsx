@@ -97,7 +97,8 @@ const buildSegments = (searchData) => {
       fromCode: dep.departureCode || 'HAN',
       toCode: dep.arrivalCode || 'SGN',
       fromAirport: dep.departureAirport || `Sân bay ${from}`,
-      toAirport: dep.arrivalAirport || `Sân bay ${to}`
+      toAirport: dep.arrivalAirport || `Sân bay ${to}`,
+      fareClass: dep.fareClass || 'Economy'
     }
   ]
 
@@ -110,7 +111,8 @@ const buildSegments = (searchData) => {
       fromCode: ret.departureCode || dep.arrivalCode || 'SGN',
       toCode: ret.arrivalCode || dep.departureCode || 'HAN',
       fromAirport: ret.departureAirport || dep.arrivalAirport || `Sân bay ${to}`,
-      toAirport: ret.arrivalAirport || dep.departureAirport || `Sân bay ${from}`
+      toAirport: ret.arrivalAirport || dep.departureAirport || `Sân bay ${from}`,
+      fareClass: ret.fareClass || dep.fareClass || 'Economy'
     })
   }
 
@@ -207,6 +209,7 @@ function ServiceSelection() {
                             <PlaneIcon />
                           </span>
                           <p>{getRouteText(segment)}</p>
+                          <small>Hạng vé: {segment.fareClass}</small>
                         </div>
 
                         <select

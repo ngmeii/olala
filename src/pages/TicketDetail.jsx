@@ -82,6 +82,8 @@ const EDeckIcon = () => (
   </svg>
 )
 
+const TicketIcon = EDeckIcon
+
 const BanIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 115.636 5.636a9 9 0 0112.728 12.728zM6.75 6.75l10.5 10.5" />

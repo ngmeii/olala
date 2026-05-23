@@ -71,6 +71,11 @@ const getPaymentSummary = (searchData = {}) => {
 
 const createBookingCode = () => Math.random().toString(36).slice(2, 8).toUpperCase()
 
+const getFareClassSummary = (dep = {}, ret = null) => [
+  dep.fareClass,
+  ret?.fareClass && ret.fareClass !== dep.fareClass ? ret.fareClass : null
+].filter(Boolean).join(' / ') || 'Economy'
+
 export const getSavedTickets = () => {
   try {
     const rawTickets = localStorage.getItem(TICKETS_STORAGE_KEY)
@@ -83,6 +88,7 @@ export const getSavedTickets = () => {
       const summary = getPaymentSummary(ticket.rawSearchData)
       return {
         ...ticket,
+        fareClass: ticket.fareClass || getFareClassSummary(ticket.rawSearchData.selectedDep || {}, ticket.rawSearchData.selectedRet || null),
         baggagePrice: ticket.baggagePrice || summary.baggagePrice,
         ticketTotal: ticket.ticketTotal || summary.ticketTotal,
         feeTotal: ticket.feeTotal || summary.feeTotal,
@@ -105,6 +111,7 @@ export const buildTicketFromSearchData = (searchData = {}, status = 'waiting') =
 
   const bookingCode = searchData.bookingCode || createBookingCode()
   const selectedAirline = dep.airline || 'Sun PhuQuoc'
+  const fareClass = getFareClassSummary(dep, ret)
 
   return {
     status,
@@ -118,6 +125,7 @@ export const buildTicketFromSearchData = (searchData = {}, status = 'waiting') =
     duration: formatDuration(dep.duration),
     date: formatDate(searchData.departureDate),
     passengers: `${passengerCount} Hành khách`,
+    fareClass,
     children: searchData.children || 0,
     babies: searchData.babies || 0,
     seat: searchData.seat || '',

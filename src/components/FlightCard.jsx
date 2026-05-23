@@ -17,11 +17,35 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
     duration,
     flightType,
     price,
+    priceValue,
     nextDay,
     date
   } = flight
 
   const [showDetails, setShowDetails] = useState(false)
+  const [showFareOptions, setShowFareOptions] = useState(false)
+
+  const formatMoney = (value) => Number(value || 0).toLocaleString('vi-VN')
+  const basePrice = priceValue || Number(String(price || '').replace(/\D/g, '')) || 0
+  const fareOptions = flight.fareOptions || [
+    { id: 'eco', name: 'Economy Saver', priceValue: basePrice },
+    { id: 'classic', name: 'Economy Classic', priceValue: basePrice + 350000 },
+    { id: 'business', name: 'Business Flex', priceValue: basePrice + 1200000 }
+  ]
+  const selectedFare = fareOptions.find(option => option.id === flight.fareId || option.name === flight.fareClass) || fareOptions[0]
+  const displayPrice = formatMoney(selectedFare.priceValue || basePrice)
+
+  const handleSelectFare = (fare) => {
+    onSelect({
+      ...flight,
+      fareClass: fare.name,
+      fareId: fare.id,
+      fareOptions,
+      priceValue: fare.priceValue,
+      price: formatMoney(fare.priceValue)
+    })
+    setShowFareOptions(false)
+  }
 
   const dCity = overrideDeparture?.city || departureCity;
   const dCode = overrideDeparture?.code || departureCode;
@@ -49,7 +73,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
   const arrDateOnly = getArrivalDate();
 
   return (
-    <div className={`bg-white rounded-2xl border ${isSelected ? 'border-[#2563eb] ring-1 ring-[#2563eb]' : 'border-[#e8edf5]'} overflow-hidden transition-all duration-300`}>
+    <div className={`bg-white rounded-2xl border ${isSelected ? 'border-[#2563eb] ring-1 ring-[#2563eb]' : 'border-[#e8edf5]'} overflow-visible transition-all duration-300 relative`}>
       {/* Main Content */}
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-start gap-3">
@@ -111,19 +135,59 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
           </div>
 
           {/* Price + Button */}
-          <div className="w-[90px] shrink-0 text-right pt-0.5">
-            <p className="text-[16px] font-bold text-[#1a1a2e] leading-none tracking-tight">{price}</p>
+          <div className="w-[90px] shrink-0 text-right pt-0.5 relative">
+            <p className="text-[16px] font-bold text-[#1a1a2e] leading-none tracking-tight">{displayPrice}</p>
             <p className="text-[9px] text-[#8a94a6] mt-0.5">VND</p>
-            <button 
-              onClick={() => onSelect(flight)}
-              className={`mt-3 w-full font-bold py-[9px] rounded-lg text-[11px] active:scale-95 transition-all cursor-pointer ${
-                isSelected 
-                  ? 'bg-[#10b981] text-white' 
-                  : 'bg-[#2563eb] text-white hover:bg-[#1d4ed8]'
-              }`}
-            >
-              {isSelected ? 'Đã chọn' : 'Chọn mua'}
-            </button>
+            <div className={`mt-3 w-full rounded-lg overflow-hidden flex ${
+              isSelected ? 'bg-[#10b981] text-white' : 'bg-[#2563eb] text-white'
+            }`}>
+              <button
+                type="button"
+                onClick={() => handleSelectFare(selectedFare)}
+                className={`flex-1 font-bold py-[9px] text-[11px] active:scale-95 transition-all cursor-pointer ${
+                  isSelected ? 'hover:bg-emerald-600' : 'hover:bg-[#1d4ed8]'
+                }`}
+              >
+                {isSelected ? 'Đã chọn' : 'Chọn mua'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowFareOptions(!showFareOptions)}
+                className={`w-[28px] flex items-center justify-center border-l active:scale-95 transition-all cursor-pointer ${
+                  isSelected ? 'border-white/25 hover:bg-emerald-600' : 'border-white/25 hover:bg-[#1d4ed8]'
+                }`}
+                aria-label="Chọn hạng vé"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className={`w-3 h-3 transition-transform ${showFareOptions ? 'rotate-180' : ''}`}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+            </div>
+            {showFareOptions && (
+              <div className="absolute right-0 top-[72px] w-[190px] bg-white rounded-2xl border border-[#e2e8f0] shadow-[0_16px_40px_rgba(15,23,42,0.18)] z-30 overflow-hidden text-left">
+                {fareOptions.map((fare) => {
+                  const activeFare = isSelected && selectedFare.id === fare.id
+                  return (
+                    <button
+                      key={fare.id}
+                      type="button"
+                      onClick={() => handleSelectFare(fare)}
+                      className={`w-full px-3.5 py-3 flex items-center justify-between gap-3 transition-colors ${
+                        activeFare ? 'bg-[#eff6ff]' : 'hover:bg-[#f8fafc]'
+                      }`}
+                    >
+                      <span>
+                        <span className={`block text-[12px] font-bold ${activeFare ? 'text-[#2563eb]' : 'text-[#0f172a]'}`}>{fare.name}</span>
+                        <span className="block text-[10px] text-[#64748b] mt-0.5">Hạng vé</span>
+                      </span>
+                      <span className={`text-[12px] font-black whitespace-nowrap ${activeFare ? 'text-[#2563eb]' : 'text-[#0f172a]'}`}>
+                        {formatMoney(fare.priceValue)}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
         </div>
@@ -179,6 +243,10 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
                 </p>
               </div>
 
+              <p className="text-[12px] text-[#64748b] font-medium mb-4">
+                Hạng vé: <span className="text-[#1e293b] font-bold">{selectedFare.name}</span>
+              </p>
+
               <div>
                 <p className="text-[14px] font-bold text-[#1e293b] leading-tight">{aAirport} ({aCode})</p>
                 <p className="text-[11px] text-[#64748b] mt-0.5">{aCity}</p>
@@ -192,6 +260,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
         <div className="flex items-center gap-4 text-[10px] text-[#8a94a6]">
           <span>Số hiệu chuyến bay: <b className="text-[#4a5568] uppercase">{flightNumber}</b></span>
           <span>{isReturn ? 'Ngày về' : 'Ngày đi'}: <b className="text-[#4a5568]">{displayDate || date}</b></span>
+          <span>Hạng vé: <b className="text-[#4a5568]">{selectedFare.name}</b></span>
         </div>
         <button 
           onClick={() => setShowDetails(!showDetails)}

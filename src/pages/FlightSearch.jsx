@@ -292,9 +292,9 @@ function FlightSearch() {
 
   const handleSelectFlight = (flight, isReturn) => {
     if (isReturn) {
-      setSelectedRet(selectedRet?.id === flight.id ? null : flight)
+      setSelectedRet(selectedRet?.id === flight.id && selectedRet?.fareId === flight.fareId ? null : flight)
     } else {
-      setSelectedDep(selectedDep?.id === flight.id ? null : flight)
+      setSelectedDep(selectedDep?.id === flight.id && selectedDep?.fareId === flight.fareId ? null : flight)
     }
   }
 
@@ -502,7 +502,7 @@ function FlightSearch() {
                     .map((f) => (
                       <FlightCard 
                         key={f.id} 
-                        flight={f} 
+                        flight={selectedDep?.id === f.id ? selectedDep : f} 
                         isReturn={false} 
                         onSelect={(flight) => handleSelectFlight(flight, false)}
                         isSelected={selectedDep?.id === f.id}
@@ -542,7 +542,7 @@ function FlightSearch() {
                       .map((f) => (
                         <FlightCard 
                           key={f.id} 
-                          flight={f} 
+                          flight={selectedRet?.id === f.id ? selectedRet : f} 
                           isReturn={true} 
                           onSelect={(flight) => handleSelectFlight(flight, true)}
                           isSelected={selectedRet?.id === f.id}

@@ -193,6 +193,10 @@ function BookingPending() {
   const toCode = arrivalLocation.code
   const fromCity = departureLocation.city
   const toCity = arrivalLocation.city
+  const fareClassSummary = [
+    selectedDep.fareClass,
+    selectedRet?.fareClass && selectedRet.fareClass !== selectedDep.fareClass ? selectedRet.fareClass : null
+  ].filter(Boolean).join(' / ') || 'Economy'
   const bookingCode = searchData.bookingCode || 'OLALA123456'
   const [paymentDeadlineAt] = useState(getPaymentDeadlineAt)
   const [paymentSecondsLeft, setPaymentSecondsLeft] = useState(() => getSecondsUntilDeadline(paymentDeadlineAt))
@@ -259,6 +263,7 @@ function BookingPending() {
             <span><UserIcon />{adults} Người lớn</span>
             <span><ChildIcon />{children} Trẻ em</span>
             <span><BabyIcon />{babies} Em bé</span>
+            <span>Hạng vé: {fareClassSummary}</span>
           </div>
         </section>
 
