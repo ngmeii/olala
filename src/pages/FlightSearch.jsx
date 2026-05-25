@@ -12,6 +12,87 @@ import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
+const getFareOptions = (basePrice, airline) => {
+  if (airline === 'Vietnam Airlines') {
+    return [
+      {
+        id: 'economy',
+        name: 'Economy',
+        priceValue: basePrice,
+        conditions: [
+          'Không bao gồm hành lý ký gửi',
+          'Bao gồm 10kg hành lý xách tay',
+          'Đổi vé: Thu phí + chênh lệch nếu có',
+          'Hoàn vé: Thu phí theo quy định'
+        ]
+      },
+      {
+        id: 'classic',
+        name: 'Economy Classic',
+        priceValue: basePrice + 420000,
+        conditions: [
+          'Bao gồm 23kg hành lý ký gửi',
+          'Bao gồm 10kg hành lý xách tay',
+          'Đổi vé: Thu phí + chênh lệch nếu có',
+          'Hoàn vé: Thu phí theo quy định'
+        ]
+      }
+    ]
+  }
+
+  if (airline === 'Bamboo Airways') {
+    return [
+      {
+        id: 'smart',
+        name: 'Economy Smart',
+        priceValue: basePrice,
+        conditions: [
+          'Không bao gồm hành lý ký gửi',
+          'Bao gồm 7kg hành lý xách tay',
+          'Đổi vé: Thu phí + chênh lệch nếu có',
+          'Bảo lưu: Thu phí'
+        ]
+      },
+      {
+        id: 'flex',
+        name: 'Economy Flex',
+        priceValue: basePrice + 520000,
+        conditions: [
+          'Bao gồm 20kg hành lý ký gửi',
+          'Bao gồm 7kg hành lý xách tay',
+          'Đổi vé: Thu phí + chênh lệch nếu có',
+          'Hoàn vé: Thu phí theo quy định'
+        ]
+      }
+    ]
+  }
+
+  return [
+    {
+      id: 'eco',
+      name: 'Eco',
+      priceValue: basePrice,
+      conditions: [
+        'Không bao gồm hành lý ký gửi',
+        'Bao gồm 7kg hành lý xách tay',
+        'Đổi vé: Thu phí + chênh lệch nếu có',
+        'Bảo lưu: Thu phí'
+      ]
+    },
+    {
+      id: 'deluxe',
+      name: 'Deluxe',
+      priceValue: basePrice + 594000,
+      conditions: [
+        'Bao gồm 20kg hành lý ký gửi',
+        'Bao gồm 7kg hành lý xách tay',
+        'Đổi vé: Thu phí + chênh lệch nếu có',
+        'Hoàn vé: Thu phí theo quy định'
+      ]
+    }
+  ]
+}
+
 const departureFlights = [
   {
     id: 'vn6025',
@@ -30,6 +111,7 @@ const departureFlights = [
     flightType: 'Bay thẳng',
     price: '3.163.000',
     priceValue: 3163000,
+    fareOptions: getFareOptions(3163000, 'Vietnam Airlines'),
     nextDay: true,
     date: 'Thứ 5, ngày 07/05/2026'
   },
@@ -50,6 +132,7 @@ const departureFlights = [
     flightType: 'Bay thẳng',
     price: '2.490.000',
     priceValue: 2490000,
+    fareOptions: getFareOptions(2490000, 'VietJet Air'),
     nextDay: true,
     date: 'Thứ 5, ngày 07/05/2026'
   }
@@ -73,6 +156,7 @@ const returnFlights = [
     flightType: 'Bay thẳng',
     price: '3.090.000',
     priceValue: 3090000,
+    fareOptions: getFareOptions(3090000, 'Bamboo Airways'),
     nextDay: false,
     date: 'Thứ 7, ngày 09/05/2026'
   },
@@ -93,6 +177,7 @@ const returnFlights = [
     flightType: 'Bay thẳng',
     price: '2.690.000',
     priceValue: 2690000,
+    fareOptions: getFareOptions(2690000, 'VietJet Air'),
     nextDay: false,
     date: 'Thứ 7, ngày 09/05/2026'
   }

@@ -1,6 +1,71 @@
 import { useState } from 'react'
 import { format, addDays, parse } from 'date-fns'
 
+const getNumberValue = (...values) => {
+  const value = values.find(item => item !== undefined && item !== null && item !== '')
+  if (typeof value === 'number') return value
+  return Number(String(value || '').replace(/\D/g, '')) || 0
+}
+
+const normalizeTextList = (value) => {
+  if (!value) return []
+  if (Array.isArray(value)) return value.flatMap(normalizeTextList)
+  if (typeof value === 'object') {
+    return Object.values(value).flatMap(normalizeTextList)
+  }
+  return String(value)
+    .split(/\r?\n|;|\|/)
+    .map(item => item.trim())
+    .filter(Boolean)
+}
+
+const getFareName = (fare) => (
+  fare.name || fare.fareName || fare.fareClass || fare.className || fare.ticketClass || fare.bookingClass || fare.code || 'Hạng vé'
+)
+
+const getFareId = (fare, index) => (
+  fare.id || fare.fareId || fare.optionId || fare.classCode || fare.code || `${getFareName(fare)}-${index}`
+)
+
+const getFarePrice = (fare, basePrice) => getNumberValue(
+  fare.priceValue,
+  fare.totalPrice,
+  fare.totalFare,
+  fare.amount,
+  fare.price,
+  fare.fare,
+  basePrice
+)
+
+const getFareConditionLines = (fare, flight) => {
+  const conditionSources = [
+    fare.conditions,
+    fare.condition,
+    fare.rules,
+    fare.rule,
+    fare.rulesText,
+    fare.fareRules,
+    fare.baggageConditions,
+    fare.ticketConditions,
+    fare.services,
+    fare.baggage,
+    fare.baggageInfo,
+    fare.checkedBaggage,
+    fare.freeBaggage,
+    fare.allowanceBaggage,
+    fare.carryOnBaggage,
+    fare.handBaggage,
+    fare.changeCondition,
+    fare.refundCondition,
+    fare.holdCondition,
+    flight.fareConditions,
+    flight.conditions
+  ]
+
+  const lines = conditionSources.flatMap(normalizeTextList)
+  return [...new Set(lines)]
+}
+
 function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overrideDeparture, overrideArrival }) {
   const {
     airline,
@@ -23,28 +88,62 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
   } = flight
 
   const [showDetails, setShowDetails] = useState(false)
-  const [showFareOptions, setShowFareOptions] = useState(false)
+  const [showFareModal, setShowFareModal] = useState(false)
 
   const formatMoney = (value) => Number(value || 0).toLocaleString('vi-VN')
-  const basePrice = priceValue || Number(String(price || '').replace(/\D/g, '')) || 0
-  const fareOptions = flight.fareOptions || [
-    { id: 'eco', name: 'Economy Saver', priceValue: basePrice },
-    { id: 'classic', name: 'Economy Classic', priceValue: basePrice + 350000 },
-    { id: 'business', name: 'Business Flex', priceValue: basePrice + 1200000 }
-  ]
+  const basePrice = getNumberValue(priceValue, price)
+  const apiFareOptions = flight.fareOptions || flight.fares || flight.fareClasses || flight.ticketClasses || flight.priceOptions || []
+  const fareOptions = (apiFareOptions.length ? apiFareOptions : [{
+    id: flight.fareId,
+    name: flight.fareClass,
+    priceValue: basePrice,
+    conditions: flight.fareConditions || flight.conditions || []
+  }]).map((fare, index) => ({
+    ...fare,
+    id: getFareId(fare, index),
+    name: getFareName(fare),
+    priceValue: getFarePrice(fare, basePrice)
+  }))
   const selectedFare = fareOptions.find(option => option.id === flight.fareId || option.name === flight.fareClass) || fareOptions[0]
+  const [draftFareId, setDraftFareId] = useState(selectedFare.id)
+  const draftFare = fareOptions.find(option => option.id === draftFareId) || selectedFare
   const displayPrice = formatMoney(selectedFare.priceValue || basePrice)
 
-  const handleSelectFare = (fare) => {
+  const buildSelectedFlight = (fare) => ({
+    ...flight,
+    fareClass: fare.name,
+    fareId: fare.id,
+    fareOptions,
+    fareConditions: getFareConditionLines(fare, flight),
+    selectedFare: fare,
+    priceValue: fare.priceValue,
+    price: formatMoney(fare.priceValue)
+  })
+
+  const openFareModal = () => {
+    setDraftFareId(selectedFare.id)
+    setShowFareModal(true)
+  }
+
+  const handleMainSelectClick = () => {
+    if (isSelected) {
+      onSelect(buildSelectedFlight(selectedFare))
+      return
+    }
+
+    openFareModal()
+  }
+
+  const handleConfirmFare = () => {
     onSelect({
-      ...flight,
-      fareClass: fare.name,
-      fareId: fare.id,
-      fareOptions,
-      priceValue: fare.priceValue,
-      price: formatMoney(fare.priceValue)
+      ...buildSelectedFlight(draftFare)
     })
-    setShowFareOptions(false)
+    setShowFareModal(false)
+  }
+
+  const showFareOptions = false
+  const handleSelectFare = (fare) => {
+    onSelect(buildSelectedFlight(fare))
   }
 
   const dCity = overrideDeparture?.city || departureCity;
@@ -71,6 +170,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
 
   const depDateOnly = displayDate?.split(', ')[1] || "";
   const arrDateOnly = getArrivalDate();
+  const fareConditions = getFareConditionLines(draftFare, flight)
 
   return (
     <div className={`bg-white rounded-2xl border ${isSelected ? 'border-[#2563eb] ring-1 ring-[#2563eb]' : 'border-[#e8edf5]'} overflow-visible transition-all duration-300 relative`}>
@@ -143,7 +243,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
             }`}>
               <button
                 type="button"
-                onClick={() => handleSelectFare(selectedFare)}
+                onClick={handleMainSelectClick}
                 className={`flex-1 font-bold py-[9px] text-[11px] active:scale-95 transition-all cursor-pointer ${
                   isSelected ? 'hover:bg-emerald-600' : 'hover:bg-[#1d4ed8]'
                 }`}
@@ -152,13 +252,13 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
               </button>
               <button
                 type="button"
-                onClick={() => setShowFareOptions(!showFareOptions)}
+                onClick={openFareModal}
                 className={`w-[28px] flex items-center justify-center border-l active:scale-95 transition-all cursor-pointer ${
                   isSelected ? 'border-white/25 hover:bg-emerald-600' : 'border-white/25 hover:bg-[#1d4ed8]'
                 }`}
                 aria-label="Chọn hạng vé"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className={`w-3 h-3 transition-transform ${showFareOptions ? 'rotate-180' : ''}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                 </svg>
               </button>
@@ -272,6 +372,102 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
           </svg>
         </button>
       </div>
+
+      {showFareModal && (
+        <>
+          <div className="fixed inset-0 bg-black/45 z-[220] backdrop-blur-[2px]" onClick={() => setShowFareModal(false)}></div>
+          <div className="fixed inset-x-0 bottom-0 z-[230] flex justify-center">
+            <div className="w-full max-w-[450px] bg-white rounded-t-[22px] shadow-[0_-18px_50px_rgba(15,23,42,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-300">
+              <div className="px-5 py-3 border-b border-[#e5e7eb] text-center">
+                <h3 className="text-[17px] font-extrabold text-[#245da8]">Chuyến đi của bạn</h3>
+              </div>
+
+              <div className="px-5 py-4 border-b border-[#eef1f6]">
+                <div className="grid grid-cols-[92px_28px_1fr] gap-3">
+                  <div className="space-y-7">
+                    <p className="text-[13px] font-extrabold text-[#4b5563]">{departureTime} <span>{depDateOnly}</span></p>
+                    <p className="text-[10px] text-[#c4cad3]">{duration}</p>
+                    <p className="text-[13px] font-extrabold text-[#4b5563]">{arrivalTime} <span>{arrDateOnly}</span></p>
+                  </div>
+
+                  <div className="flex flex-col items-center pt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#b7bfca]"></span>
+                    <span className="flex-1 border-l-2 border-dotted border-[#b7bfca] my-1 relative">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="absolute top-1/2 left-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rotate-90 text-[#9aa3af] bg-white">
+                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                      </svg>
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#b7bfca]"></span>
+                  </div>
+
+                  <div className="space-y-6 min-w-0">
+                    <p className="text-[14px] font-extrabold text-[#4b5563] leading-tight">{dAirport} ({dCode})</p>
+                    <div className="flex items-center gap-3">
+                      <img src={logo} alt={airline} className="w-[42px] h-[28px] object-contain" />
+                      <p className="text-[12px] text-[#9aa3af] leading-tight">
+                        Hãng bay: <span className="text-[#7b8491]">{airline}</span><br />
+                        <span>({flightNumber})</span>
+                      </p>
+                    </div>
+                    <p className="text-[14px] font-extrabold text-[#4b5563] leading-tight">{aAirport} ({aCode})</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 px-5 py-4 border-b border-[#eef1f6]">
+                {fareOptions.map((fare) => {
+                  const isActive = draftFare.id === fare.id
+                  return (
+                    <button
+                      key={fare.id}
+                      type="button"
+                      onClick={() => setDraftFareId(fare.id)}
+                      className={`h-[62px] rounded-[8px] border px-3 text-center shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition-all ${
+                        isActive
+                          ? 'bg-[#5bb6e2] border-[#5bb6e2] text-white'
+                          : 'bg-white border-[#e5e7eb] text-[#8a8f98]'
+                      }`}
+                    >
+                      <span className="block text-[13px] font-medium truncate">{fare.name}</span>
+                      <span className="block text-[14px] mt-1">{formatMoney(fare.priceValue)} VND</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="px-4 py-4 min-h-[210px]">
+                <h4 className="text-[16px] font-extrabold text-[#20242c] mb-2">Điều kiện hành lý và vé</h4>
+                <ul className="space-y-1.5 text-[12px] leading-relaxed text-[#4b5563] list-disc pl-4">
+                  {fareConditions.length > 0 ? (
+                    fareConditions.map((condition) => (
+                      <li key={condition}>{condition}</li>
+                    ))
+                  ) : (
+                    <li>Chưa có dữ liệu điều kiện từ hãng vé.</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 px-5 py-4 border-t border-[#eef1f6]">
+                <button
+                  type="button"
+                  onClick={() => setShowFareModal(false)}
+                  className="h-[36px] rounded-[4px] border border-[#245da8] text-[#1f2937] text-[13px] font-extrabold"
+                >
+                  Đóng
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmFare}
+                  className="h-[36px] rounded-[4px] bg-[#245da8] text-white text-[13px] font-extrabold"
+                >
+                  Chọn
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
