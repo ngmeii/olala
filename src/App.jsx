@@ -10,6 +10,7 @@ import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentFailure from './pages/PaymentFailure'
 import MyTickets from './pages/MyTickets'
 import TicketDetail from './pages/TicketDetail'
+import ETicketImage from './pages/ETicketImage'
 import AccountPage from './pages/AccountPage'
 import OffersPage from './pages/OffersPage'
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route path="/tickets" element={<MyTickets />} />
+          <Route path="/tickets/:bookingCode/e-ticket" element={<ETicketImage />} />
           <Route path="/tickets/:bookingCode" element={<TicketDetail />} />
           <Route path="/offers" element={<OffersPage />} />
           <Route path="/account" element={<AccountPage />} />

@@ -82,8 +82,6 @@ const EDeckIcon = () => (
   </svg>
 )
 
-const TicketIcon = EDeckIcon
-
 const BanIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 115.636 5.636a9 9 0 0112.728 12.728zM6.75 6.75l10.5 10.5" />
@@ -557,11 +555,6 @@ function TicketDetail() {
   const displayBookingCode = sourceTicket?.code || bookingCode || searchData.bookingCode || 'OLALA123456'
   const heroPassengerLabel = (isProcessing || isIssued || isCanceled) && passengerCount === 1 ? '1 Người lớn' : `${passengerCount} Hành khách`
   const detailModeClass = isExpiredCanceled ? 'expired' : isCanceled ? 'canceled' : isIssued ? 'issued' : isProcessing ? 'processing' : ''
-  const ticketInfo = {
-    fareClass: firstSegment.fareClass,
-    eTicketNumber: sourceTicket?.eTicketNumber || searchData.eTicketNumber || '738 2456789012',
-    airline: firstSegment.flight.airline || sourceTicket?.airline || 'Vietnam Airlines'
-  }
   const cancellationInfo = sourceTicket?.cancellation || {
     reason: 'Khách hàng chủ động hủy chuyến',
     policy: 'Áp dụng theo điều kiện vé đã mua.',
@@ -571,6 +564,10 @@ function TicketDetail() {
   const isUnpaidCanceled = isCanceled && !isExpiredCanceled && cancellationInfo.paymentStatus && cancellationInfo.bookingStatus
   const invoiceInfo = searchData.invoiceInfo || sourceTicket?.invoiceInfo
   const shouldShowInvoiceInfo = Boolean(searchData.exportInvoice && invoiceInfo && !isCanceled)
+
+  const handleViewETicket = () => {
+    navigate(`/tickets/${displayBookingCode}/e-ticket`, { state: { ticket: sourceTicket } })
+  }
 
   const handleCancelBooking = () => {
     const canceledTicket = saveBookingTicket(searchData, 'canceled', {
@@ -656,7 +653,7 @@ function TicketDetail() {
             )}
           </div>
           {isIssued ? (
-            <button type="button" className="ticketdetail-issued-btn"><EDeckIcon />Xem vé điện tử</button>
+            <button type="button" className="ticketdetail-issued-btn" onClick={handleViewETicket}><EDeckIcon />Xem vé điện tử</button>
           ) : isCanceled ? null : isProcessing ? (
             <button type="button" className="ticketdetail-confirming-btn" disabled><span className="ticketdetail-spinner" />Đang xác nhận</button>
           ) : (
@@ -771,17 +768,6 @@ function TicketDetail() {
                 <div><ClockIcon /><span>Trạng thái hoàn tiền:</span><strong><em>{cancellationInfo.refundStatus}</em></strong></div>
               </div>
             )}
-          </section>
-        )}
-
-        {isIssued && (
-          <section className="ticketdetail-section">
-            <h2>Thông tin vé</h2>
-            <div className="ticketdetail-ticket-card">
-              <div><span>Loại vé:</span><strong>{ticketInfo.fareClass}</strong></div>
-              <div><span>Mã vé điện tử:</span><strong>{ticketInfo.eTicketNumber}</strong></div>
-              <div><span>Hãng hàng không:</span><strong>{ticketInfo.airline}</strong></div>
-            </div>
           </section>
         )}
 

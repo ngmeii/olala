@@ -377,7 +377,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
         <>
           <div className="fixed inset-0 bg-black/45 z-[220] backdrop-blur-[2px]" onClick={() => setShowFareModal(false)}></div>
           <div className="fixed inset-x-0 bottom-0 z-[230] flex justify-center">
-            <div className="w-full max-w-[450px] bg-white rounded-t-[22px] shadow-[0_-18px_50px_rgba(15,23,42,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-300">
+            <div className="w-full max-w-[450px] h-[75vh] bg-white rounded-t-[22px] shadow-[0_-18px_50px_rgba(15,23,42,0.25)] overflow-hidden animate-in slide-in-from-bottom duration-300 flex flex-col">
               <div className="px-5 py-3 border-b border-[#e5e7eb] text-center">
                 <h3 className="text-[17px] font-extrabold text-[#245da8]">Chuyến đi của bạn</h3>
               </div>
@@ -435,7 +435,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
                 })}
               </div>
 
-              <div className="px-4 py-4 min-h-[210px]">
+              <div className="px-4 py-4 flex-1 overflow-y-auto">
                 <h4 className="text-[16px] font-extrabold text-[#20242c] mb-2">Điều kiện hành lý và vé</h4>
                 <ul className="space-y-1.5 text-[12px] leading-relaxed text-[#4b5563] list-disc pl-4">
                   {fareConditions.length > 0 ? (
@@ -448,7 +448,7 @@ function FlightCard({ flight, isReturn, onSelect, isSelected, displayDate, overr
                 </ul>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 px-5 py-4 border-t border-[#eef1f6]">
+              <div className="grid grid-cols-2 gap-3 px-5 py-4 border-t border-[#eef1f6] shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowFareModal(false)}

@@ -278,7 +278,15 @@ function TicketCard({ ticket, paymentCountdown }) {
           <button type="button" className="ticket-pay-btn" onClick={() => navigate('/payment', { state: ticket.rawSearchData || {} })}><CardMiniIcon />Thanh toán ngay</button>
         )}
         {isProcessing && <button type="button" className="ticket-confirm-btn">Đang xác nhận</button>}
-        {isIssued && <button type="button" className="ticket-issued-btn">▦ Xem vé điện tử</button>}
+        {isIssued && (
+          <button
+            type="button"
+            className="ticket-issued-btn"
+            onClick={() => navigate(`/tickets/${ticket.code}/e-ticket`, { state: { ticket } })}
+          >
+            ▦ Xem vé điện tử
+          </button>
+        )}
       </div>
     </article>
   )
