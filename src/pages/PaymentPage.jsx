@@ -216,21 +216,39 @@ function PaymentPage() {
   ), 0), [passengers, segments, baggageSelections])
 
   const ticketTotal = (searchData.selectedDep?.priceValue || 0) + (searchData.selectedRet?.priceValue || 0)
-  const feeTotal = 0
+  const feeTotal = searchData.feeTotal || 0
   const grandTotal = ticketTotal + baggageTotal + feeTotal
+  const paidAmount = searchData.paidAmount || 0
+  const amountDue = Math.max(grandTotal - paidAmount, 0)
+  const isSupplementalPayment = paidAmount > 0 && amountDue > 0
 
   const handleSubmitPayment = () => {
-    let shouldShowSuccess
+    let paymentResult
 
     try {
-      shouldShowSuccess = sessionStorage.getItem(PAYMENT_RESULT_TOGGLE_KEY) !== 'success'
-      sessionStorage.setItem(PAYMENT_RESULT_TOGGLE_KEY, shouldShowSuccess ? 'success' : 'failure')
+      const previousResult = sessionStorage.getItem(PAYMENT_RESULT_TOGGLE_KEY)
+      paymentResult = isSupplementalPayment || previousResult === 'partial'
+        ? (previousResult === 'success' ? 'failure' : 'success')
+        : 'partial'
+      sessionStorage.setItem(PAYMENT_RESULT_TOGGLE_KEY, paymentResult)
     } catch {
-      shouldShowSuccess = true
+      paymentResult = isSupplementalPayment ? 'success' : 'partial'
     }
 
-    navigate(shouldShowSuccess ? '/payment-success' : '/payment-failure', {
-      state: { ...searchData, selectedPaymentMethod: selectedMethod }
+    const partialPaidAmount = Math.min(2000000, Math.max(grandTotal - 1, 0))
+    const resultPath = paymentResult === 'partial'
+      ? '/payment-incomplete'
+      : paymentResult === 'success'
+        ? '/payment-success'
+        : '/payment-failure'
+
+    navigate(resultPath, {
+      state: {
+        ...searchData,
+        selectedPaymentMethod: selectedMethod,
+        paidAmount: paymentResult === 'partial' ? partialPaidAmount : paidAmount,
+        grandTotal
+      }
     })
   }
 
@@ -352,14 +370,16 @@ function PaymentPage() {
             <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
           </div>
-          <div className="payment-grand-total"><span>Tổng cộng</span><strong>{formatMoney(grandTotal)}</strong></div>
+          {isSupplementalPayment && <div className="payment-grand-total"><span>Tổng thanh toán</span><strong>{formatMoney(grandTotal)}</strong></div>}
+          {isSupplementalPayment && <div className="payment-grand-total"><span>Đã thanh toán</span><strong>{formatMoney(paidAmount)}</strong></div>}
+          <div className="payment-grand-total"><span>{isSupplementalPayment ? 'Còn thiếu' : 'Tổng cộng'}</span><strong>{formatMoney(amountDue)}</strong></div>
         </section>
 
         <button
           className="payment-submit-btn"
           onClick={handleSubmitPayment}
         >
-          <LockIcon />Thanh toán {formatMoney(grandTotal)}
+          <LockIcon />{isSupplementalPayment ? 'Thanh toán bổ sung' : 'Thanh toán'} {formatMoney(amountDue)}
         </button>
         <div className="payment-safe"><ShieldIcon />An toàn - Bảo mật - Được bảo vệ bởi SSL 256-bit</div>
       </main>

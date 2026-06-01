@@ -222,6 +222,36 @@ const getPassengerKind = (index, searchData) => {
 const getSegmentLabel = (segmentId) => segmentId === 'return' ? 'chiều về' : 'chiều đi'
 
 const STATIC_TICKET_DETAILS = {
+  Z6H7X2: {
+    status: 'waiting',
+    code: 'Z6H7X2',
+    airline: 'Vietjet Air',
+    fromCode: 'HAN',
+    fromCity: 'Hà Nội',
+    toCode: 'SGN',
+    toCity: 'Hồ Chí Minh',
+    time: '23:05 - 01:15',
+    duration: '2h 10m',
+    date: 'T5, 14/05/2026',
+    passengers: '1 Hành khách',
+    baggage: '0 Túi ký gửi',
+    ticketTotal: 5460000,
+    feeTotal: 120000,
+    grandTotal: 5580000,
+    paidAmount: 2000000,
+    contactInfo: {
+      name: 'Nguyễn Văn A',
+      gender: 'Nam',
+      phone: '0912 345 678',
+      email: 'nguyenvana@gmail.com'
+    },
+    passengerList: [
+      { id: 1, name: 'Nguyễn Văn A', gender: 'Nam', extra: '0912 345 678' }
+    ],
+    flightNumber: 'VJ 123',
+    fareClass: 'Eco',
+    aircraft: 'Airbus A320'
+  },
   M4P8Q1: {
     status: 'processing',
     code: 'M4P8Q1',
@@ -552,15 +582,19 @@ function TicketDetail() {
   const feeTotal = computedFeeTotal > 0 ? computedFeeTotal : (sourceTicket?.feeTotal || 0)
   const computedGrandTotal = ticketTotal + baggageTotal + feeTotal
   const grandTotal = computedGrandTotal > 0 ? computedGrandTotal : (sourceTicket?.grandTotal || 0)
+  const paidAmount = sourceTicket?.paidAmount || searchData.paidAmount || 0
+  const amountDue = Math.max(grandTotal - paidAmount, 0)
+  const isPartialPayment = ticketStatus === 'waiting' && paidAmount > 0 && amountDue > 0
   const displayBookingCode = sourceTicket?.code || bookingCode || searchData.bookingCode || 'OLALA123456'
   const heroPassengerLabel = (isProcessing || isIssued || isCanceled) && passengerCount === 1 ? '1 Người lớn' : `${passengerCount} Hành khách`
-  const detailModeClass = isExpiredCanceled ? 'expired' : isCanceled ? 'canceled' : isIssued ? 'issued' : isProcessing ? 'processing' : ''
+  const detailModeClass = isExpiredCanceled ? 'expired' : isCanceled ? 'canceled' : isIssued ? 'issued' : isProcessing ? 'processing' : isPartialPayment ? 'partial-payment' : ''
   const cancellationInfo = sourceTicket?.cancellation || {
     reason: 'Khách hàng chủ động hủy chuyến',
     policy: 'Áp dụng theo điều kiện vé đã mua.',
     paymentStatus: 'Đã thanh toán',
     refundStatus: 'Đang xử lý'
   }
+  const refundStatus = isExpiredCanceled ? 'Đang xử lý' : cancellationInfo.refundStatus
   const isUnpaidCanceled = isCanceled && !isExpiredCanceled && cancellationInfo.paymentStatus && cancellationInfo.bookingStatus
   const invoiceInfo = searchData.invoiceInfo || sourceTicket?.invoiceInfo
   const shouldShowInvoiceInfo = Boolean(searchData.exportInvoice && invoiceInfo && !isCanceled)
@@ -604,6 +638,32 @@ function TicketDetail() {
     return () => window.clearInterval(timerId)
   }, [paymentDeadlineAt])
 
+  useEffect(() => {
+    if (!isPartialPayment || paymentSecondsLeft > 0) return
+
+    const canceledTicket = saveBookingTicket(searchData, 'canceledDanger', {
+      paidAmount,
+      ticketTotal,
+      baggagePrice: baggageTotal,
+      feeTotal,
+      grandTotal,
+      note: 'Đặt chỗ đã bị hủy do quá hạn thanh toán bổ sung.',
+      cancellation: {
+        reason: 'Quá hạn thanh toán bổ sung',
+        policy: 'Khoản tiền đã nhận được chuyển sang trạng thái chờ hoàn tiền.',
+        paymentStatus: `Đã thanh toán ${formatMoney(paidAmount)}`,
+        refundStatus: 'Đang xử lý',
+        bookingStatus: 'Đã hủy'
+      }
+    })
+
+    const updateTicketId = window.setTimeout(() => {
+      setLocalTicketOverride(canceledTicket)
+    }, 0)
+
+    return () => window.clearTimeout(updateTicketId)
+  }, [baggageTotal, feeTotal, grandTotal, isPartialPayment, paidAmount, paymentSecondsLeft, searchData, ticketTotal])
+
   return (
     <div className={`ticketdetail-page ${detailModeClass}`}>
       <div className="ticketdetail-background" style={{ backgroundImage: `url(${background2})` }}>
@@ -619,7 +679,7 @@ function TicketDetail() {
         <div className="ticketdetail-status-row">
           <span className={`ticketdetail-status ${detailModeClass}`}>
             {isCanceled ? <BanIcon /> : isIssued ? <CheckIcon /> : <ClockIcon />}
-            {isCanceled ? 'ĐÃ HỦY' : isIssued ? 'ĐÃ XUẤT VÉ' : isProcessing ? 'ĐANG XỬ LÝ' : 'CHỜ THANH TOÁN'}
+            {isCanceled ? 'ĐÃ HỦY' : isIssued ? 'ĐÃ XUẤT VÉ' : isProcessing ? 'ĐANG XỬ LÝ' : isPartialPayment ? 'THANH TOÁN THIẾU' : 'CHỜ THANH TOÁN'}
             {!isProcessing && !isIssued && !isCanceled && <b>{paymentCountdown}</b>}
           </span>
           <span className="ticketdetail-code">Mã booking: <strong>{displayBookingCode}</strong><CopyIcon /></span>
@@ -648,6 +708,8 @@ function TicketDetail() {
               <span>Vé điện tử đã được gửi đến email của bạn.<br />Chúc bạn có chuyến bay tốt đẹp!</span>
             ) : isProcessing ? (
               <span>Chúng tôi đang xác nhận thông tin đặt chỗ của bạn.<br />Vui lòng chờ trong giây lát.</span>
+            ) : isPartialPayment ? (
+              <span>Chúng tôi đã ghi nhận thanh toán của quý khách.<br /><br /><strong>Đã thanh toán: {formatMoney(paidAmount)}</strong><br /><strong>Còn thiếu: {formatMoney(amountDue)}</strong><br /><br />Vui lòng thanh toán bổ sung trước <strong>{formatPaymentDeadline(paymentDeadline)}</strong> để hệ thống tiếp tục xử lý xuất vé.</span>
             ) : (
               <span>Chúng tôi đang giữ chỗ cho bạn đến <strong>{formatPaymentDeadline(paymentDeadline)}.</strong><br />Vui lòng thanh toán trong <strong>{paymentCountdown}</strong> trước khi thời gian hết hạn.</span>
             )}
@@ -657,7 +719,7 @@ function TicketDetail() {
           ) : isCanceled ? null : isProcessing ? (
             <button type="button" className="ticketdetail-confirming-btn" disabled><span className="ticketdetail-spinner" />Đang xác nhận</button>
           ) : (
-            <button type="button" className="ticketdetail-pay-btn" onClick={() => navigate('/payment', { state: searchData })}><CardIcon />Thanh toán ngay</button>
+            <button type="button" className="ticketdetail-pay-btn" onClick={() => navigate('/payment', { state: { ...searchData, paidAmount, grandTotal } })}><CardIcon />{isPartialPayment ? 'Thanh toán bổ sung' : 'Thanh toán ngay'}</button>
           )}
         </section>
 
@@ -746,6 +808,8 @@ function TicketDetail() {
               <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
               <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
               <div className="ticketdetail-total"><span>Tổng thanh toán</span><strong>{formatMoney(grandTotal)}</strong></div>
+              {isPartialPayment && <div className="ticketdetail-paid"><span>Đã thanh toán</span><strong>{formatMoney(paidAmount)}</strong></div>}
+              {isPartialPayment && <div className="ticketdetail-amount-due"><span>Còn thiếu</span><strong>{formatMoney(amountDue)}</strong></div>}
             </div>
           </section>
         )}
@@ -758,6 +822,7 @@ function TicketDetail() {
                 <div><span>Lý do hủy</span><strong>{cancellationInfo.reason}</strong></div>
                 <div><span>Chính sách hoàn tiền</span><strong>{cancellationInfo.policy}</strong></div>
                 <div><span>Trạng thái thanh toán</span><strong>{cancellationInfo.paymentStatus}</strong></div>
+                {refundStatus && <div><span>Trạng thái hoàn tiền</span><strong><em>{refundStatus}</em></strong></div>}
                 <div><span>Trạng thái đặt chỗ</span><strong className="danger">{cancellationInfo.bookingStatus}</strong></div>
               </div>
             ) : (
@@ -765,7 +830,7 @@ function TicketDetail() {
                 <div><InfoIcon /><span>Lý do hủy:</span><strong>{cancellationInfo.reason}</strong></div>
                 <div><CheckIcon /><span>Chính sách hoàn tiền:</span><strong>{cancellationInfo.policy}</strong></div>
                 <div><CardIcon /><span>Trạng thái thanh toán:</span><strong>{cancellationInfo.paymentStatus || 'Đã thanh toán'}</strong></div>
-                <div><ClockIcon /><span>Trạng thái hoàn tiền:</span><strong><em>{cancellationInfo.refundStatus}</em></strong></div>
+                <div><ClockIcon /><span>Trạng thái hoàn tiền:</span><strong><em>{refundStatus}</em></strong></div>
               </div>
             )}
           </section>

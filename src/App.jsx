@@ -8,6 +8,7 @@ import BookingPending from './pages/BookingPending'
 import PaymentPage from './pages/PaymentPage'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentFailure from './pages/PaymentFailure'
+import PaymentIncomplete from './pages/PaymentIncomplete'
 import MyTickets from './pages/MyTickets'
 import TicketDetail from './pages/TicketDetail'
 import ETicketImage from './pages/ETicketImage'
@@ -31,6 +32,7 @@ function App() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failure" element={<PaymentFailure />} />
+          <Route path="/payment-incomplete" element={<PaymentIncomplete />} />
           <Route path="/tickets" element={<MyTickets />} />
           <Route path="/tickets/:bookingCode/e-ticket" element={<ETicketImage />} />
           <Route path="/tickets/:bookingCode" element={<TicketDetail />} />

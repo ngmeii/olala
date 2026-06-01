@@ -181,7 +181,7 @@ function PaymentFailure() {
   ), 0), [passengers, segments, baggageSelections])
 
   const ticketTotal = (searchData.selectedDep?.priceValue || 0) + (searchData.selectedRet?.priceValue || 0)
-  const feeTotal = 0
+  const feeTotal = searchData.feeTotal || 0
   const grandTotal = ticketTotal + baggageTotal + feeTotal
 
   const retryPayment = () => navigate('/payment', { state: searchData })

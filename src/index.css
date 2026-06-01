@@ -3292,6 +3292,401 @@
   height: 25px;
 }
 
+/* Partial payment result screen */
+.incomplete-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #f3f6fa;
+  color: #061e5f;
+}
+
+.incomplete-background {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 500px;
+  background-size: cover;
+  background-position: center top;
+  pointer-events: none;
+}
+
+.incomplete-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.04), transparent 52%, #f3f6fa);
+}
+
+.incomplete-back-btn {
+  position: absolute;
+  z-index: 4;
+  top: 22px;
+  left: 18px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.incomplete-back-btn svg {
+  width: 30px;
+  height: 30px;
+}
+
+.incomplete-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 270px;
+  padding: 26px 18px 20px;
+  text-align: center;
+}
+
+.incomplete-confetti {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  transform: rotate(45deg);
+}
+
+.incomplete-confetti.c1 { top: 58px; left: 118px; background: #ffbd27; }
+.incomplete-confetti.c2 { top: 86px; left: 82px; background: #ffffff; }
+.incomplete-confetti.c3 { top: 45px; right: 88px; background: #1c64ee; }
+.incomplete-confetti.c4 { top: 72px; right: 56px; background: #ffdc20; }
+
+.incomplete-alert-rings {
+  width: 146px;
+  height: 146px;
+  margin: 0 auto 8px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.74) 0 42%, transparent 43%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.3) 0 62%, transparent 63%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.incomplete-alert {
+  width: 72px;
+  height: 72px;
+  border: 5px solid #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ff9b31, #ff6a00);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 24px rgba(234, 88, 12, 0.22);
+}
+
+.incomplete-alert svg {
+  width: 48px;
+  height: 48px;
+}
+
+.incomplete-hero h1 {
+  color: #061e5f;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.incomplete-hero p {
+  margin-top: 9px;
+  color: #1e293b;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.incomplete-hero-lead {
+  display: block;
+  white-space: nowrap;
+  font-size: clamp(12px, 3.2vw, 14px);
+}
+
+.incomplete-main {
+  position: relative;
+  z-index: 2;
+  padding: 0 22px 24px;
+}
+
+.incomplete-card {
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+}
+
+.incomplete-payment-card,
+.incomplete-booking-card {
+  padding: 18px 14px;
+}
+
+.incomplete-deadline-card,
+.incomplete-card + .incomplete-card,
+.incomplete-card + .incomplete-deadline-card,
+.incomplete-deadline-card + .incomplete-card,
+.incomplete-pay-btn,
+.incomplete-chat-btn {
+  margin-top: 13px;
+}
+
+.incomplete-section-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+}
+
+.incomplete-section-title svg {
+  width: 25px;
+  height: 25px;
+  color: #2c74f5;
+  flex-shrink: 0;
+}
+
+.incomplete-section-title h2,
+.incomplete-safe-card h2 {
+  color: #061e5f;
+  font-size: 19px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.incomplete-total-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.incomplete-total-lines div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #061e5f;
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.incomplete-total-lines strong {
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.incomplete-total-lines .amount-due {
+  color: #f25b12;
+  font-weight: 900;
+}
+
+.incomplete-total-lines .amount-due strong {
+  font-size: 21px;
+}
+
+.incomplete-deadline-card {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid #fbd2ad;
+  border-radius: 10px;
+  background: #fff8ef;
+}
+
+.incomplete-deadline-card svg {
+  width: 30px;
+  height: 30px;
+  color: #f97316;
+}
+
+.incomplete-deadline-card p {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.38;
+}
+
+.incomplete-deadline-card strong {
+  font-weight: 800;
+}
+
+.incomplete-deadline-card em {
+  color: #f25b12;
+  font-style: normal;
+}
+
+.incomplete-flight-row {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 56px 62px minmax(0, 1fr) 68px;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.incomplete-flight-row.with-divider {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #b7c8e5;
+}
+
+.incomplete-flight-row img {
+  width: 46px;
+  max-height: 36px;
+  object-fit: contain;
+}
+
+.incomplete-airport {
+  min-width: 0;
+}
+
+.incomplete-airport strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.incomplete-airport span {
+  display: block;
+  margin-top: 11px;
+  font-size: 12px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.incomplete-flight-line {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.incomplete-flight-line::before {
+  content: "";
+  position: absolute;
+  left: 42px;
+  right: 42px;
+  top: 11px;
+  border-top: 1px dashed #8eb0ed;
+}
+
+.incomplete-flight-line span {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.incomplete-flight-line svg {
+  position: relative;
+  z-index: 1;
+  width: 23px;
+  height: 23px;
+  justify-self: center;
+  background: #ffffff;
+  color: #2c74f5;
+  transform: rotate(90deg);
+}
+
+.incomplete-flight-line small {
+  grid-column: 1 / -1;
+  margin-top: 9px;
+  font-size: 12px;
+}
+
+.incomplete-trip-meta {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #cbd8ec;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.incomplete-trip-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.incomplete-trip-meta svg {
+  width: 18px;
+  height: 18px;
+  color: #2c74f5;
+  flex-shrink: 0;
+}
+
+.incomplete-safe-card {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 14px;
+}
+
+.incomplete-safe-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #e1f7ea;
+  color: #20c260;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.incomplete-safe-icon svg {
+  width: 31px;
+  height: 31px;
+}
+
+.incomplete-safe-card p {
+  margin-top: 7px;
+  color: #41516e;
+  font-size: 13px;
+}
+
+.incomplete-pay-btn,
+.incomplete-chat-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.incomplete-pay-btn {
+  border: 0;
+  background: linear-gradient(90deg, #ff690d, #ff7d18);
+  color: #ffffff;
+  box-shadow: 0 10px 18px rgba(234, 88, 12, 0.2);
+}
+
+.incomplete-chat-btn {
+  border: 1px solid #2c74f5;
+  background: #ffffff;
+  color: #2c74f5;
+}
+
+.incomplete-pay-btn svg,
+.incomplete-chat-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
 /* Account screen */
 .account-page {
   position: relative;
@@ -4562,6 +4957,11 @@
   background: #eaf2ff;
 }
 
+.ticketdetail-hold-note.partial-payment {
+  background: #fff8dc;
+  border: 1px solid #f6d98b;
+}
+
 .ticketdetail-hold-note.processing svg {
   color: #096df2;
 }
@@ -4994,6 +5394,21 @@
   color: #096df2;
   font-size: 22px;
   line-height: 1;
+  font-weight: 900;
+}
+
+.ticketdetail-payment-card .ticketdetail-paid {
+  color: #061e5f;
+  font-weight: 900;
+}
+
+.ticketdetail-payment-card .ticketdetail-amount-due {
+  color: #ea580c;
+  font-weight: 900;
+}
+
+.ticketdetail-payment-card .ticketdetail-paid strong,
+.ticketdetail-payment-card .ticketdetail-amount-due strong {
   font-weight: 900;
 }
 

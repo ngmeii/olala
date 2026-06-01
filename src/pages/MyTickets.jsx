@@ -118,7 +118,11 @@ const tickets = [
     date: 'T5, 14/05/2026',
     fareClass: 'Eco',
     passengers: '1 Hành khách',
-    baggage: '0 Túi ký gửi'
+    baggage: '0 Túi ký gửi',
+    ticketTotal: 5460000,
+    feeTotal: 120000,
+    grandTotal: 5580000,
+    paidAmount: 2000000
   },
   {
     status: 'processing',
@@ -195,7 +199,7 @@ const tabs = [
   { id: 'canceled', label: 'Đã hủy' }
 ]
 
-const StatusBadge = ({ status, countdownText }) => {
+const StatusBadge = ({ status, countdownText, isPartialPayment }) => {
   const config = STATUS_CONFIG[status]
   return (
     <span className="ticket-status-badge" style={{ color: config.color, backgroundColor: config.badge }}>
@@ -203,7 +207,7 @@ const StatusBadge = ({ status, countdownText }) => {
       {config.icon === 'spin' && <span className="ticket-status-symbol">◌</span>}
       {config.icon === 'check' && <span className="ticket-status-symbol">✓</span>}
       {config.icon === 'x' && <span className="ticket-status-symbol">×</span>}
-      {config.label}
+      {isPartialPayment ? 'THANH TOÁN THIẾU' : config.label}
       {countdownText && <b>{countdownText}</b>}
     </span>
   )
@@ -217,12 +221,6 @@ const getPassengerLabel = (ticket) => {
   return `${count || 1} Hành khách`
 }
 
-const getFareClassLabel = (ticket) => {
-  const depFare = ticket.rawSearchData?.selectedDep?.fareClass
-  const retFare = ticket.rawSearchData?.selectedRet?.fareClass
-  return ticket.fareClass || [depFare, retFare && retFare !== depFare ? retFare : null].filter(Boolean).join(' / ') || 'Economy'
-}
-
 function TicketCard({ ticket, paymentCountdown }) {
   const navigate = useNavigate()
   const config = STATUS_CONFIG[ticket.status]
@@ -231,11 +229,21 @@ function TicketCard({ ticket, paymentCountdown }) {
   const isProcessing = ticket.status === 'processing'
   const isIssued = ticket.status === 'issued'
   const isCanceled = ticket.status === 'canceled' || ticket.status === 'canceledDanger'
+  const isPartialPayment = isWaiting && ticket.paidAmount > 0 && ticket.paidAmount < ticket.grandTotal
+  const paymentState = {
+    ...(ticket.rawSearchData || {
+      bookingCode: ticket.code,
+      feeTotal: ticket.feeTotal || 0,
+      selectedDep: { priceValue: ticket.ticketTotal || 0 }
+    }),
+    paidAmount: ticket.paidAmount || 0,
+    grandTotal: ticket.grandTotal || 0
+  }
 
   return (
     <article className="ticket-card" style={{ '--ticket-accent': config.color }}>
       <div className="ticket-card-top">
-        <StatusBadge status={ticket.status} countdownText={ticket.status === 'waiting' ? paymentCountdown : ''} />
+        <StatusBadge status={ticket.status} countdownText={ticket.status === 'waiting' ? paymentCountdown : ''} isPartialPayment={isPartialPayment} />
         <div className="ticket-code">Mã booking: <strong>{ticket.code}</strong><CopyIcon /></div>
       </div>
 
@@ -275,7 +283,7 @@ function TicketCard({ ticket, paymentCountdown }) {
           <TicketIcon />Xem chi tiết
         </button>
         {isWaiting && (
-          <button type="button" className="ticket-pay-btn" onClick={() => navigate('/payment', { state: ticket.rawSearchData || {} })}><CardMiniIcon />Thanh toán ngay</button>
+          <button type="button" className="ticket-pay-btn" onClick={() => navigate('/payment', { state: paymentState })}><CardMiniIcon />{isPartialPayment ? 'Thanh toán bổ sung' : 'Thanh toán ngay'}</button>
         )}
         {isProcessing && <button type="button" className="ticket-confirm-btn">Đang xác nhận</button>}
         {isIssued && (
@@ -309,7 +317,27 @@ function MyTickets() {
   const allTickets = [
     ...savedTickets,
     ...tickets.filter(ticket => !savedTickets.some(savedTicket => savedTicket.code === ticket.code))
-  ]
+  ].map(ticket => {
+    const isExpiredPartialPayment = paymentSecondsLeft === 0
+      && ticket.status === 'waiting'
+      && ticket.paidAmount > 0
+      && ticket.paidAmount < ticket.grandTotal
+
+    if (!isExpiredPartialPayment) return ticket
+
+    return {
+      ...ticket,
+      status: 'canceledDanger',
+      note: 'Đặt chỗ đã bị hủy do quá hạn thanh toán bổ sung.',
+      cancellation: {
+        reason: 'Quá hạn thanh toán bổ sung',
+        policy: 'Khoản tiền đã nhận được chuyển sang trạng thái chờ hoàn tiền.',
+        paymentStatus: `Đã thanh toán ${ticket.paidAmount.toLocaleString('vi-VN')}đ`,
+        refundStatus: 'Đang xử lý',
+        bookingStatus: 'Đã hủy'
+      }
+    }
+  })
   const visibleTickets = activeTab === 'all'
     ? allTickets
     : allTickets.filter(ticket => {
