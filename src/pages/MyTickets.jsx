@@ -81,12 +81,15 @@ const LOGO_BY_KEY = {
 
 const PAYMENT_DEADLINE_STORAGE_KEY = 'bookingPaymentDeadlineAt'
 const PAYMENT_HOLD_SECONDS = 15 * 60
+const IS_PAYMENT_COUNTDOWN_PAUSED = true
 
 const formatCountdown = (totalSeconds) => {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
+
+const formatMoney = (amount) => `${Number(amount || 0).toLocaleString('vi-VN')}đ`
 
 const getPaymentDeadlineAt = () => {
   const fallbackDeadline = Date.now() + PAYMENT_HOLD_SECONDS * 1000
@@ -122,7 +125,26 @@ const tickets = [
     ticketTotal: 5460000,
     feeTotal: 120000,
     grandTotal: 5580000,
-    paidAmount: 2000000
+    paidAmount: 2000000,
+    note: 'Đã thanh toán 2.000.000đ. Còn thiếu 3.580.000đ. Vui lòng thanh toán bổ sung.'
+  },
+  {
+    status: 'waiting',
+    code: 'W9P3A5',
+    logo: logoVietjet,
+    fromCode: 'SGN',
+    fromCity: 'Hồ Chí Minh',
+    toCode: 'DAD',
+    toCity: 'Đà Nẵng',
+    time: '09:15 - 10:35',
+    duration: '1h 20m',
+    date: 'T6, 15/05/2026',
+    fareClass: 'Eco',
+    passengers: '1 Hành khách',
+    baggage: '0 Túi ký gửi',
+    ticketTotal: 1180000,
+    feeTotal: 140000,
+    grandTotal: 1320000
   },
   {
     status: 'processing',
@@ -155,6 +177,22 @@ const tickets = [
     fareClass: 'Economy Classic',
     passengers: '1 Hành khách',
     seat: '12A',
+    baggage: '0 Túi ký gửi'
+  },
+  {
+    status: 'issued',
+    code: 'R8T4Y6',
+    logo: logoVNA,
+    fromCode: 'DAD',
+    fromCity: 'Đà Nẵng',
+    toCode: 'HAN',
+    toCity: 'Hà Nội',
+    time: '16:20 - 17:45',
+    duration: '1h 25m',
+    date: 'T7, 09/05/2026',
+    fareClass: 'Economy Classic',
+    passengers: '1 Hành khách',
+    seat: '18C',
     baggage: '0 Túi ký gửi'
   },
   {
@@ -266,7 +304,7 @@ function TicketCard({ ticket, paymentCountdown }) {
       </div>
 
       {ticket.note && (
-        <div className={`ticket-note ${ticket.status === 'canceledDanger' ? 'danger' : ''}`}>
+        <div className={`ticket-note ${ticket.status === 'canceledDanger' ? 'danger' : isPartialPayment ? 'partial-payment' : ''}`}>
           <InfoIcon />
           <span>
             <strong>{ticket.note}</strong>
@@ -312,27 +350,38 @@ function MyTickets() {
   const [showPermissionPopup, setShowPermissionPopup] = useState(false)
   const [savedTickets] = useState(() => getSavedTickets())
   const [paymentDeadlineAt] = useState(getPaymentDeadlineAt)
-  const [paymentSecondsLeft, setPaymentSecondsLeft] = useState(() => getSecondsUntilDeadline(paymentDeadlineAt))
+  const [paymentSecondsLeft, setPaymentSecondsLeft] = useState(PAYMENT_HOLD_SECONDS)
   const paymentCountdown = formatCountdown(paymentSecondsLeft)
   const allTickets = [
     ...savedTickets,
     ...tickets.filter(ticket => !savedTickets.some(savedTicket => savedTicket.code === ticket.code))
-  ].map(ticket => {
+  ].map((ticket, index) => {
+    const grandTotal = ticket.grandTotal || 5580000
+    const demoPaidAmount = Math.min(2000000, Math.floor(grandTotal / 2))
+    const ticketWithPartialPayment = index === 0
+      ? {
+          ...ticket,
+          status: 'waiting',
+          grandTotal,
+          paidAmount: demoPaidAmount,
+          note: `Đã thanh toán ${formatMoney(demoPaidAmount)}. Còn thiếu ${formatMoney(grandTotal - demoPaidAmount)}. Vui lòng thanh toán bổ sung.`
+        }
+      : ticket
     const isExpiredPartialPayment = paymentSecondsLeft === 0
-      && ticket.status === 'waiting'
-      && ticket.paidAmount > 0
-      && ticket.paidAmount < ticket.grandTotal
+      && ticketWithPartialPayment.status === 'waiting'
+      && ticketWithPartialPayment.paidAmount > 0
+      && ticketWithPartialPayment.paidAmount < ticketWithPartialPayment.grandTotal
 
-    if (!isExpiredPartialPayment) return ticket
+    if (!isExpiredPartialPayment) return ticketWithPartialPayment
 
     return {
-      ...ticket,
+      ...ticketWithPartialPayment,
       status: 'canceledDanger',
       note: 'Đặt chỗ đã bị hủy do quá hạn thanh toán bổ sung.',
       cancellation: {
         reason: 'Quá hạn thanh toán bổ sung',
         policy: 'Khoản tiền đã nhận được chuyển sang trạng thái chờ hoàn tiền.',
-        paymentStatus: `Đã thanh toán ${ticket.paidAmount.toLocaleString('vi-VN')}đ`,
+        paymentStatus: `Đã thanh toán ${ticketWithPartialPayment.paidAmount.toLocaleString('vi-VN')}đ`,
         refundStatus: 'Đang xử lý',
         bookingStatus: 'Đã hủy'
       }
@@ -346,6 +395,8 @@ function MyTickets() {
     })
 
   useEffect(() => {
+    if (IS_PAYMENT_COUNTDOWN_PAUSED) return undefined
+
     const timerId = window.setInterval(() => {
       setPaymentSecondsLeft(getSecondsUntilDeadline(paymentDeadlineAt))
     }, 1000)

@@ -600,11 +600,12 @@ function ConfirmInfo() {
         </div>
 
         <section className="confirm-card confirm-total-card">
-          <div className="confirm-section-title"><WalletIcon /><h2>Tổng thanh toán</h2></div>
+          <div className="confirm-section-title"><WalletIcon /><h2>Tổng tiền</h2></div>
           <div className="confirm-total-lines">
             <div><span>Giá vé</span><strong>{formatMoney(ticketTotal)}</strong></div>
             <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>Chưa thanh toán</strong></div>
           </div>
           <div className="confirm-grand-total"><span>Tổng cộng</span><strong>{formatMoney(grandTotal)}</strong></div>
         </section>

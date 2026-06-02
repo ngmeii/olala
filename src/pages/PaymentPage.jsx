@@ -369,8 +369,9 @@ function PaymentPage() {
             <div><span>Giá vé ({adults} Người lớn)</span><strong>{formatMoney(ticketTotal)}</strong></div>
             <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>{isSupplementalPayment ? 'Thanh toán thiếu' : 'Chưa thanh toán'}</strong></div>
           </div>
-          {isSupplementalPayment && <div className="payment-grand-total"><span>Tổng thanh toán</span><strong>{formatMoney(grandTotal)}</strong></div>}
+          {isSupplementalPayment && <div className="payment-grand-total"><span>Tổng tiền</span><strong>{formatMoney(grandTotal)}</strong></div>}
           {isSupplementalPayment && <div className="payment-grand-total"><span>Đã thanh toán</span><strong>{formatMoney(paidAmount)}</strong></div>}
           <div className="payment-grand-total"><span>{isSupplementalPayment ? 'Còn thiếu' : 'Tổng cộng'}</span><strong>{formatMoney(amountDue)}</strong></div>
         </section>

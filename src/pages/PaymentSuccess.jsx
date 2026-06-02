@@ -202,6 +202,7 @@ function PaymentSuccess() {
             <div><span>Giá vé ({adults} Người lớn)</span><strong>{formatMoney(ticketTotal)}</strong></div>
             <div><span>Hành lý</span><strong>{formatMoney(baggageSummary.price)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>Đã thanh toán</strong></div>
           </div>
           <div className="success-grand-total"><span>Tổng cộng</span><strong>{formatMoney(grandTotal)}</strong></div>
         </section>

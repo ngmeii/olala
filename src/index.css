@@ -4521,6 +4521,16 @@
   font-size: 11px;
 }
 
+.ticket-note.partial-payment {
+  background: #fff1e5;
+  color: #f97316;
+}
+
+.ticket-note.partial-payment svg,
+.ticket-note.partial-payment strong {
+  color: #f97316;
+}
+
 .ticket-note svg {
   width: 18px;
   height: 18px;
@@ -4531,6 +4541,11 @@
   width: 18px;
   height: 18px;
   color: #ef4444;
+}
+
+.payment-status-row span,
+.payment-status-row strong {
+  font-weight: 800;
 }
 
 .ticket-note span,
@@ -4687,6 +4702,13 @@
   margin-bottom: 12px;
 }
 
+.ticketdetail-status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .ticketdetail-status {
   height: 34px;
   border-radius: 999px;
@@ -4732,6 +4754,26 @@
   font-weight: 900;
 }
 
+.ticketdetail-refunding-status {
+  height: 34px;
+  border-radius: 999px;
+  background: #fff1e5;
+  color: #f97316;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.ticketdetail-refunding-status svg {
+  width: 18px;
+  height: 18px;
+}
+
 .ticketdetail-code {
   display: flex;
   align-items: center;
@@ -4756,6 +4798,7 @@
 .ticketdetail-passenger-card,
 .ticketdetail-service-card,
 .ticketdetail-payment-card,
+.ticketdetail-overpayment-card,
 .ticketdetail-ticket-card,
 .ticketdetail-refund-card,
 .ticketdetail-invoice-card,
@@ -5409,6 +5452,82 @@
 
 .ticketdetail-payment-card .ticketdetail-paid strong,
 .ticketdetail-payment-card .ticketdetail-amount-due strong {
+  font-weight: 900;
+}
+
+.ticketdetail-overpayment-card {
+  padding: 18px 16px 16px;
+}
+
+.ticketdetail-overpayment-card div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  color: #061e5f;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.ticketdetail-overpayment-card div + div {
+  margin-top: 18px;
+}
+
+.ticketdetail-overpayment-card strong {
+  font-weight: 700;
+  text-align: right;
+}
+
+.ticketdetail-overpayment-total {
+  padding-top: 18px;
+  border-top: 1px dashed #f4b27b;
+  color: #ea580c !important;
+  font-weight: 900;
+}
+
+.ticketdetail-overpayment-total strong {
+  color: #ea580c;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.ticketdetail-overpayment-status {
+  align-items: center;
+}
+
+.ticketdetail-overpayment-status em {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #fff1e5;
+  color: #f97316;
+  padding: 7px 14px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.ticketdetail-overpayment-note {
+  min-height: 96px;
+  margin-top: 12px;
+  border: 1px solid #f6d98b;
+  border-radius: 10px;
+  background: #fff8dc;
+  color: #334155;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ticketdetail-overpayment-note svg {
+  width: 24px;
+  height: 24px;
+  color: #f97316;
+}
+
+.ticketdetail-overpayment-note strong {
+  color: #ea580c;
   font-weight: 900;
 }
 

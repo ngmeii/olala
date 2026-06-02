@@ -221,6 +221,7 @@ function PaymentFailure() {
             <div><span>Giá vé ({adults} Người lớn)</span><strong>{formatMoney(ticketTotal)}</strong></div>
             <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>Thanh toán thất bại</strong></div>
           </div>
           <div className="failure-grand-total"><span>Tổng cộng</span><strong>{formatMoney(grandTotal)}</strong></div>
         </section>

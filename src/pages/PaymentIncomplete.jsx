@@ -220,9 +220,10 @@ function PaymentIncomplete() {
         <section className="incomplete-card incomplete-payment-card">
           <div className="incomplete-section-title"><ReceiptIcon /><h2>Chi tiết thanh toán</h2></div>
           <div className="incomplete-total-lines">
-            <div><span>Tổng thanh toán</span><strong>{formatMoney(grandTotal)}</strong></div>
+            <div><span>Tổng tiền</span><strong>{formatMoney(grandTotal)}</strong></div>
             <div><span>Đã thanh toán</span><strong>{formatMoney(paidAmount)}</strong></div>
             <div className="amount-due"><span>Còn thiếu</span><strong>{formatMoney(amountDue)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>Thanh toán thiếu</strong></div>
           </div>
         </section>
 

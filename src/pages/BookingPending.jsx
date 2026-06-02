@@ -129,6 +129,7 @@ const formatCountdown = (totalSeconds) => {
 
 const PAYMENT_DEADLINE_STORAGE_KEY = 'bookingPaymentDeadlineAt'
 const PAYMENT_HOLD_SECONDS = 15 * 60
+const IS_PAYMENT_COUNTDOWN_PAUSED = true
 
 const getPaymentDeadlineAt = () => {
   const fallbackDeadline = Date.now() + PAYMENT_HOLD_SECONDS * 1000
@@ -199,10 +200,12 @@ function BookingPending() {
   ].filter(Boolean).join(' / ') || 'Economy'
   const bookingCode = searchData.bookingCode || 'OLALA123456'
   const [paymentDeadlineAt] = useState(getPaymentDeadlineAt)
-  const [paymentSecondsLeft, setPaymentSecondsLeft] = useState(() => getSecondsUntilDeadline(paymentDeadlineAt))
+  const [paymentSecondsLeft, setPaymentSecondsLeft] = useState(PAYMENT_HOLD_SECONDS)
   const paymentDeadline = useMemo(() => new Date(paymentDeadlineAt), [paymentDeadlineAt])
 
   useEffect(() => {
+    if (IS_PAYMENT_COUNTDOWN_PAUSED) return undefined
+
     const timerId = window.setInterval(() => {
       setPaymentSecondsLeft(getSecondsUntilDeadline(paymentDeadlineAt))
     }, 1000)
@@ -273,6 +276,7 @@ function BookingPending() {
             <div><span>Giá vé</span><strong>{formatMoney(ticketTotal)}</strong></div>
             <div><span>Hành lý</span><strong>{formatMoney(baggageTotal)}</strong></div>
             <div><span>Thuế & phí</span><strong>{formatMoney(feeTotal)}</strong></div>
+            <div className="payment-status-row"><span>Trạng thái thanh toán</span><strong>Chưa thanh toán</strong></div>
           </div>
           <div className="pending-grand-total"><span>Tổng cộng</span><strong>{formatMoney(grandTotal)}</strong></div>
         </section>

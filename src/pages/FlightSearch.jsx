@@ -653,7 +653,7 @@ function FlightSearch() {
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-[#e2e8f0] p-4 z-[130] shadow-[0_-10px_40px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom duration-500 ease-out">
           <div className="max-w-[450px] mx-auto flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#64748b] font-bold uppercase tracking-wider mb-0.5">Tổng thanh toán</p>
+              <p className="text-[11px] text-[#64748b] font-bold uppercase tracking-wider mb-0.5">Tổng tiền</p>
               <div className="flex items-baseline gap-1">
                 <p className="text-[20px] font-black text-[#2563eb]">
                   {(
