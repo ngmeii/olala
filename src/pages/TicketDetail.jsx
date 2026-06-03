@@ -786,6 +786,12 @@ function TicketDetail() {
               <span>Chúng tôi đang giữ chỗ cho bạn đến <strong>{formatPaymentDeadline(paymentDeadline)}.</strong><br />Vui lòng thanh toán trong <strong>{paymentCountdown}</strong> trước khi thời gian hết hạn.</span>
             )}
           </div>
+          {!isCanceled && !isIssued && !isProcessing && !isPartialPayment && (
+            <div className="ticketdetail-reconcile-note">
+              <InfoIcon />
+              <span>Nếu quý khách đã chuyển khoản nhưng trạng thái booking chưa được cập nhật, vui lòng liên hệ tư vấn viên để được hỗ trợ đối soát giao dịch.</span>
+            </div>
+          )}
           {isIssued ? (
             <button type="button" className="ticketdetail-issued-btn" onClick={handleViewETicket}><EDeckIcon />Xem vé điện tử</button>
           ) : isCanceled ? null : isProcessing ? (

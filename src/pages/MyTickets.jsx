@@ -147,23 +147,6 @@ const tickets = [
     grandTotal: 1320000
   },
   {
-    status: 'processing',
-    code: 'M4P8Q1',
-    logo: logoVietjet,
-    fromCode: 'SGN',
-    fromCity: 'Hồ Chí Minh',
-    toCode: 'DAD',
-    toCity: 'Đà Nẵng',
-    time: '10:20 - 11:35',
-    duration: '1h 15m',
-    date: 'T6, 15/05/2026',
-    fareClass: 'Economy',
-    passengers: '1 Hành khách',
-    seat: '12A',
-    baggage: '0 Túi ký gửi',
-    note: 'Chúng tôi đang xác nhận thông tin đặt chỗ của bạn.'
-  },
-  {
     status: 'issued',
     code: 'F3K8L9',
     logo: logoVNA,
@@ -304,11 +287,18 @@ function TicketCard({ ticket, paymentCountdown }) {
       </div>
 
       {ticket.note && (
-        <div className={`ticket-note ${ticket.status === 'canceledDanger' ? 'danger' : isPartialPayment ? 'partial-payment' : ''}`}>
+        <div className={`ticket-note ${ticket.status === 'canceledDanger' ? 'danger' : ticket.status === 'canceled' ? 'canceled' : isPartialPayment ? 'partial-payment' : ''}`}>
           <InfoIcon />
           <span>
             <strong>{ticket.note}</strong>
           </span>
+        </div>
+      )}
+
+      {isWaiting && !isPartialPayment && (
+        <div className="ticket-reconcile-note">
+          <InfoIcon />
+          <span>Nếu quý khách đã chuyển khoản nhưng trạng thái booking chưa được cập nhật, vui lòng liên hệ tư vấn viên để được hỗ trợ đối soát giao dịch.</span>
         </div>
       )}
 
@@ -355,7 +345,9 @@ function MyTickets() {
   const allTickets = [
     ...savedTickets,
     ...tickets.filter(ticket => !savedTickets.some(savedTicket => savedTicket.code === ticket.code))
-  ].map((ticket, index) => {
+  ]
+    .filter(ticket => ticket.status !== 'processing')
+    .map((ticket, index) => {
     const grandTotal = ticket.grandTotal || 5580000
     const demoPaidAmount = Math.min(2000000, Math.floor(grandTotal / 2))
     const ticketWithPartialPayment = index === 0

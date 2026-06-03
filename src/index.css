@@ -4521,6 +4521,11 @@
   font-size: 11px;
 }
 
+.ticket-note.canceled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 .ticket-note.partial-payment {
   background: #fff1e5;
   color: #f97316;
@@ -4541,6 +4546,11 @@
   width: 18px;
   height: 18px;
   color: #ef4444;
+}
+
+.ticket-note.canceled svg,
+.ticket-note.canceled strong {
+  color: #64748b;
 }
 
 .payment-status-row span,
@@ -4564,6 +4574,28 @@
   font-size: 11px;
   line-height: 1.25;
   font-weight: 800;
+}
+
+.ticket-reconcile-note {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+  color: #475569;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 10px;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.ticket-reconcile-note svg {
+  width: 17px;
+  height: 17px;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 
@@ -5037,6 +5069,29 @@
 
 .ticketdetail-hold-note.expired strong {
   color: #ef1f35;
+}
+
+.ticketdetail-reconcile-note {
+  margin-top: 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f8fbff;
+  color: #475569;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 11px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.ticketdetail-reconcile-note svg {
+  width: 20px;
+  height: 20px;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .ticketdetail-pay-btn {
